@@ -60,21 +60,21 @@ function scrollToPlayer(){
 //  EPISODES CONFIG
 // ══════════════════════════════════════════
 const EPISODES = {
-  1:  { suffix:'',   title:'تفسير الأحلام',               desc:'تفسير الأحلام — بين علم الأعصاب والتراث الشعبي',               endingDesc:'الصورة الكاملة — ماذا يقول العلم وما الفرق الحقيقي؟',              overlayQ:'تفسير الأحلام…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
-  2:  { suffix:'2',  title:'الأبراج',                     desc:'الأبراج — بين علم النفس والتراث الشعبي',                       endingDesc:'الصورة الكاملة — ماذا يقول العلم عن الأبراج؟',                      overlayQ:'الأبراج…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
-  3:  { suffix:'3',  title:'السحر والشعوذة',              desc:'السحر والشعوذة — الفارق بين الاعتقاد الشعبي والتفسير النفسي',   endingDesc:'الصورة الكاملة — ماذا يقول العلم عن السحر والشعوذة؟',              overlayQ:'السحر والشعوذة…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
-  4:  { suffix:'4',  title:'قراءة الكف والفنجان',         desc:'قراءة الكف والفنجان — أداة نفسية أم خداع؟',                    endingDesc:'الصورة الكاملة — ماذا يقول العلم عن قراءة الكف والفنجان؟',         overlayQ:'قراءة الكف والفنجان…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
-  5:  { suffix:'5',  title:'التنويم المغناطيسي',          desc:'التنويم المغناطيسي — علم حقيقي يستخدمه الأطباء أم مجرد تمثيل؟', endingDesc:'الصورة الكاملة — ماذا يقول العلم عن التنويم المغناطيسي؟',         overlayQ:'التنويم المغناطيسي…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
-  6:  { suffix:'6',  title:'نظريات المؤامرة',             desc:'نظريات المؤامرة — ليه دماغنا بتصدق؟',                          endingDesc:'الصورة الكاملة — علم النفس وراء نظريات المؤامرة',                   overlayQ:'نظريات المؤامرة…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
-  7:  { suffix:'7',  title:'الوصفات الشعبية',             desc:'الوصفات الشعبية — إيه اللي العلم بيثبته وإيه اللي خرافة؟',     endingDesc:'الصورة الكاملة — العلم والوصفات الشعبية',                          overlayQ:'الوصفات الشعبية…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
-  8:  { suffix:'8',  title:'القدرات الخارقة',             desc:'القدرات الخارقة — اللي بيطير، اللي مينامش، اللي بيشيل عربيات', endingDesc:'الصورة الكاملة — ماذا يقول العلم عن القدرات الخارقة؟',             overlayQ:'القدرات الخارقة…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
-  9:  { suffix:'9',  title:'التنمية البشرية',             desc:'التنمية البشرية — صناعة بمليارات، علم أم Placebo؟',             endingDesc:'الصورة الكاملة — ماذا يقول العلم عن التنمية البشرية؟',             overlayQ:'التنمية البشرية…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
-  10: { suffix:'10', title:'العلاج بالطاقة',              desc:'العلاج بالطاقة — إحساسك بالتحسن حقيقي… بس هل سببه حقيقي؟',     endingDesc:'الصورة الكاملة — ماذا يقول العلم عن العلاج بالطاقة؟',             overlayQ:'العلاج بالطاقة…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
-  11: { suffix:'11', title:'الأجسام الطائرة المجهولة',    desc:'علم الأجسام الطائرة — بين الشهادات الحقيقية والتفسيرات العلمية', endingDesc:'الصورة الكاملة — ماذا يقول العلم عن الأجسام الطائرة المجهولة؟', overlayQ:'الأجسام الطائرة المجهولة…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
-  12: { suffix:'12', title:'ظواهر ما وراء الطبيعة',       desc:'ظواهر ما وراء الطبيعة — الـ Paranormal تحت مجهر العلم',        endingDesc:'الصورة الكاملة — ماذا يقول العلم عن ظواهر ما وراء الطبيعة؟',    overlayQ:'ظواهر ما وراء الطبيعة…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
-  13: { suffix:'13', title:'الخدع البصرية والعقل',        desc:'الخدع البصرية — حتى عينك مش دليل… مخك بيكمّل الصورة غلط',     endingDesc:'الصورة الكاملة — العلم وراء خداع الحواس',                          overlayQ:'الخدع البصرية…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
-  14: { suffix:'14', title:'الاستنساخ',                   desc:'الاستنساخ — لو استنسخنا الإنسان نفسه، هو نفس الشخص؟',          endingDesc:'الصورة الكاملة — الاستنساخ بين العلم والفلسفة',                   overlayQ:'الاستنساخ…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
-  15: { suffix:'15', title:'الذكاء الاصطناعي يحلل نفسه', desc:'البرنامج معمول بالـ AI — فالـ AI هيكشف أسراره أمام الشخصية',   endingDesc:'الصورة الكاملة — الذكاء الاصطناعي: علم ولا فنكوش؟',              overlayQ:'الذكاء الاصطناعي…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
+  1:  { suffix:'',   title:'تفسير الأحلام: حلمك رسالة ولا هبد؟',               desc:'تفسير الأحلام — بين علم الأعصاب والتراث الشعبي',               endingDesc:'الصورة الكاملة — ماذا يقول العلم وما الفرق الحقيقي؟',              overlayQ:'تفسير الأحلام…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
+  2:  { suffix:'2',  title:'الأبراج: حظك اليوم ولا اشتغالة؟',                     desc:'الأبراج — بين علم النفس والتراث الشعبي',                       endingDesc:'الصورة الكاملة — ماذا يقول العلم عن الأبراج؟',                      overlayQ:'الأبراج…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
+  3:  { suffix:'3',  title:'السحر: قوة خفية ولا وهم نفسي؟',              desc:'السحر والشعوذة — الفارق بين الاعتقاد الشعبي والتفسير النفسي',   endingDesc:'الصورة الكاملة — ماذا يقول العلم عن السحر والشعوذة؟',              overlayQ:'السحر والشعوذة…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
+  4:  { suffix:'4',  title:'الفنجان والكف: مستقبلك في إيدك؟',         desc:'قراءة الكف والفنجان — أداة نفسية أم خداع؟',                    endingDesc:'الصورة الكاملة — ماذا يقول العلم عن قراءة الكف والفنجان؟',         overlayQ:'قراءة الكف والفنجان…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
+  5:  { suffix:'5',  title:'التنويم المغناطيسي: سيطرة ولا تمثيل؟',          desc:'التنويم المغناطيسي — علم حقيقي يستخدمه الأطباء أم مجرد تمثيل؟', endingDesc:'الصورة الكاملة — ماذا يقول العلم عن التنويم المغناطيسي؟',         overlayQ:'التنويم المغناطيسي…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
+  6:  { suffix:'6',  title:'المؤامرة: إحنا متراقبين فعلاً؟',             desc:'نظريات المؤامرة — ليه دماغنا بتصدق؟',                          endingDesc:'الصورة الكاملة — علم النفس وراء نظريات المؤامرة',                   overlayQ:'نظريات المؤامرة…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
+  7:  { suffix:'7',  title:'وصفات جدتي: علاج ولا خرافة؟',             desc:'الوصفات الشعبية — إيه اللي العلم بيثبته وإيه اللي خرافة؟',     endingDesc:'الصورة الكاملة — العلم والوصفات الشعبية',                          overlayQ:'الوصفات الشعبية…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
+  8:  { suffix:'8',  title:'القدرات الخارقة: سوبرمان موجود؟',             desc:'القدرات الخارقة — اللي بيطير، اللي مينامش، اللي بيشيل عربيات', endingDesc:'الصورة الكاملة — ماذا يقول العلم عن القدرات الخارقة؟',             overlayQ:'القدرات الخارقة…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
+  9:  { suffix:'9',  title:'التنمية البشرية: طاقة إيجابية ولا نصب؟',             desc:'التنمية البشرية — صناعة بمليارات، علم أم Placebo؟',             endingDesc:'الصورة الكاملة — ماذا يقول العلم عن التنمية البشرية؟',             overlayQ:'التنمية البشرية…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
+  10: { suffix:'10', title:'العلاج بالطاقة: هالة ولا وهم؟',              desc:'العلاج بالطاقة — إحساسك بالتحسن حقيقي… بس هل سببه حقيقي؟',     endingDesc:'الصورة الكاملة — ماذا يقول العلم عن العلاج بالطاقة؟',             overlayQ:'العلاج بالطاقة…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
+  11: { suffix:'11', title:'الفضائيين: إحنا لوحدنا في الكون؟',    desc:'علم الأجسام الطائرة — بين الشهادات الحقيقية والتفسيرات العلمية', endingDesc:'الصورة الكاملة — ماذا يقول العلم عن الأجسام الطائرة المجهولة؟', overlayQ:'الأجسام الطائرة المجهولة…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
+  12: { suffix:'12', title:'ما وراء الطبيعة: الأشباح حقيقة؟',       desc:'ظواهر ما وراء الطبيعة — الـ Paranormal تحت مجهر العلم',        endingDesc:'الصورة الكاملة — ماذا يقول العلم عن ظواهر ما وراء الطبيعة؟',    overlayQ:'ظواهر ما وراء الطبيعة…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
+  13: { suffix:'13', title:'الخدع البصرية: عينك بتضحك عليك؟',        desc:'الخدع البصرية — حتى عينك مش دليل… مخك بيكمّل الصورة غلط',     endingDesc:'الصورة الكاملة — العلم وراء خداع الحواس',                          overlayQ:'الخدع البصرية…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
+  14: { suffix:'14', title:'الاستنساخ: نسخة تانية منك؟',                   desc:'الاستنساخ — لو استنسخنا الإنسان نفسه، هو نفس الشخص؟',          endingDesc:'الصورة الكاملة — الاستنساخ بين العلم والفلسفة',                   overlayQ:'الاستنساخ…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
+  15: { suffix:'15', title:'الذكاء الاصطناعي: هيحتل العالم؟', desc:'البرنامج معمول بالـ AI — فالـ AI هيكشف أسراره أمام الشخصية',   endingDesc:'الصورة الكاملة — الذكاء الاصطناعي: علم ولا فنكوش؟',              overlayQ:'الذكاء الاصطناعي…<br><span style="color:var(--elm)">علم</span> ولا <span style="color:var(--fan)">فنكوش</span>؟' },
 };
 
 const EP_NAMES = {
@@ -83,7 +83,9 @@ const EP_NAMES = {
   11:'الحادية عشر', 12:'الثانية عشر', 13:'الثالثة عشر', 14:'الرابعة عشر', 15:'الخامسة عشر'
 };
 
-/* ── الحلقات المتاحة بالترتيب — عدّل هنا لما تفتح حلقة جديدة ── */
+/* ── الحلقات المتاحة بالترتيب — عدّل هنا لما تفتح حلقة جديدة
+   مثال: لما تنزل الحلقة 3 → غيّر السطر لـ [1, 2, 3]
+   ── */
 const UNLOCKED_EPS = [1, 2];
 
 let currentEp = 1;
@@ -149,7 +151,10 @@ function preloadNext(seg) {
     // إنشاء video element مخفي يبدأ التحميل فوراً
     const v = document.createElement('video');
     v.src      = url;
-    v.preload  = 'auto';
+    /* على النت البطيء نحمّل الـ metadata بس — على الفاست نحمّل كامل */
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const slow  = conn && (conn.saveData || ['slow-2g','2g','3g'].includes(conn.effectiveType));
+    v.preload  = slow ? 'metadata' : 'auto';
     v.muted    = true;
     v.style.cssText = 'position:absolute;width:0;height:0;opacity:0;pointer-events:none;';
     document.body.appendChild(v);
@@ -166,10 +171,14 @@ function loadSeg(seg, play=false){
   // لو الفيديو ده اتحمل مسبقاً — استخدم الـ buffered data
   if (_preloadEls[url]) {
     const cached = _preloadEls[url];
-    vid.src = url;
-    // لو الـ cached فيه بيانات كافية، انقل الـ currentTime = 0 وابدأ
-    vid.load();
+    /* لو الـ cached حمّل بيانات كافية، انسخه للـ main video */
+    if (cached.readyState >= 2) {
+      document.body.removeChild(cached);
+    }
     delete _preloadEls[url];
+    vid.src = url;
+    /* مش بنعمل load() لو الـ src مش اتغير — المتصفح بيحتفظ بالـ cache */
+    if (vid.src !== url) vid.load();
   } else {
     vid.src = url;
     vid.load();

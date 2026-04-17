@@ -96,7 +96,7 @@
   window.doShare = function (type) {
     var epNum = window._currentEpNum || 1;
     /* رابط نظيف بيودّي للحلقة مباشرة */
-    var url = window.location.origin + window.location.pathname + '?ep=' + epNum;
+    var url = 'https://elmorfankoush.github.io/elmorfankoush/?ep=' + epNum;
     var msg = buildMsg();
 
     if (type === 'whatsapp') {
