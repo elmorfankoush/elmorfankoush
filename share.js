@@ -16,7 +16,7 @@
     }
     /* لو فيه ?ep= في الـ URL عند التحميل → حمّل الحلقة دي */
     var ep = parseInt(new URLSearchParams(window.location.search).get('ep'), 10);
-    if (ep >= 1 && ep <= 13) {
+    if (ep >= 1 && ep <= 15) {
       setTimeout(function () {
         if (typeof loadEpisode === 'function') loadEpisode(ep);
       }, 100);

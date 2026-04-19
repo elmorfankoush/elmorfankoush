@@ -86,7 +86,7 @@ const EP_NAMES = {
 /* ── الحلقات المتاحة بالترتيب — عدّل هنا لما تفتح حلقة جديدة
    مثال: لما تنزل الحلقة 3 → غيّر السطر لـ [1, 2, 3]
    ── */
-const UNLOCKED_EPS = [1, 2];
+const UNLOCKED_EPS = [1, 2, 3];
 
 let currentEp = 1;
 window._currentEpNum = 1;
@@ -463,10 +463,10 @@ vid.addEventListener('timeupdate', () => {
   if(!vid.duration) return;
   pFill.style.width = (vid.currentTime / vid.duration * 100) + '%';
   tDisp.textContent = fmt(vid.currentTime) + ' / ' + fmt(vid.duration);
-  // لو المستخدم رجّع الشريط وهو في الـ ending → اخفِ التصويت
+  // لو المستخدم رجّع الشريط وهو في الـ ending → خلّي التصويت فاضل ظاهر (مش نخفيه)
   if(curSeg === 'ending' && !vid.ended){
     const overlay = document.getElementById('voteOverlay');
-    if(overlay && overlay.classList.contains('visible')){
+    if(overlay && overlay.classList.contains('visible') && false /* disabled: كنا بنخفي — دلوقتي لأ */){
       overlay.classList.remove('visible');
     }
   }

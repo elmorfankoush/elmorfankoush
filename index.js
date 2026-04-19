@@ -14,10 +14,10 @@
 
    🚀 الاستخدام (كل ما تنزل حلقة):
    ──────────────────────────────────
-   curl "https://REGION-elm-fankosh.cloudfunctions.net/sendEpisodeNotification?ep=3&secret=ewf2026"
+   curl "https://REGION-elmorfankoush.cloudfunctions.net/sendEpisodeNotification?ep=3&secret=ewf2026"
 
    أو من المتصفح مباشرة:
-   https://REGION-elm-fankosh.cloudfunctions.net/sendEpisodeNotification?ep=3&secret=ewf2026
+   https://REGION-elmorfankoush.cloudfunctions.net/sendEpisodeNotification?ep=3&secret=ewf2026
    ══════════════════════════════════════════════════════ */
 
 const functions = require('firebase-functions');
@@ -64,7 +64,7 @@ exports.sendEpisodeNotification = functions.https.onRequest(async (req, res) => 
   }
 
   const msg = EPISODE_MESSAGES[epNum];
-  const epUrl = `https://elmfankoush.github.io/elm-fankoush/?ep=${epNum}`;
+  const epUrl = `https://elmorfankoush.github.io/elmorfankoush/?ep=${epNum}`;
 
   try {
     /* ── جيب كل الـ tokens من Firebase ── */
@@ -87,7 +87,7 @@ exports.sendEpisodeNotification = functions.https.onRequest(async (req, res) => 
         notification: {
           title: msg.title,
           body:  msg.body,
-          imageUrl: 'https://elmfankoush.github.io/elm-fankoush/og-cover.jpg'
+          imageUrl: 'https://elmorfankoush.github.io/elmorfankoush/og-cover.jpg'
         },
         data: {
           url:   epUrl,
@@ -96,8 +96,8 @@ exports.sendEpisodeNotification = functions.https.onRequest(async (req, res) => 
         },
         webpush: {
           notification: {
-            icon:  'https://elmfankoush.github.io/elm-fankoush/og-cover.jpg',
-            badge: 'https://elmfankoush.github.io/elm-fankoush/og-cover.jpg',
+            icon:  'https://elmorfankoush.github.io/elmorfankoush/og-cover.jpg',
+            badge: 'https://elmorfankoush.github.io/elmorfankoush/og-cover.jpg',
             dir:   'rtl',
             lang:  'ar',
             requireInteraction: false,
