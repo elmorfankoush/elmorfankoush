@@ -166,6 +166,7 @@ function preloadNext(seg) {
 // ══ loadSeg ══
 function loadSeg(seg, play=false){
   curSeg = seg;
+  _endingTriggered = false;   // reset عند كل segment جديدة
   const url = VIDEOS[seg];
 
   // لو الفيديو ده اتحمل مسبقاً — استخدم الـ buffered data
@@ -471,6 +472,9 @@ vid.addEventListener('timeupdate', () => {
     }
   }
 });
+// ── flag يمنع تنفيذ الـ ending أكتر من مرة
+let _endingTriggered = false;
+
 vid.addEventListener('ended', () => {
   pBtn.textContent = '▶';
   clearTimeout(ctrlTimer);
@@ -482,6 +486,9 @@ vid.addEventListener('ended', () => {
   if(f.type === 'auto') {
     loadSeg(f.next, true);
   } else if(f.type === 'end') {
+    // امنع التنفيذ المتكرر لو المستخدم عمل seek وخلّى الفيديو يخلص تاني
+    if(_endingTriggered) return;
+    _endingTriggered = true;
     // ١) اعرض زرار "جرّب المسار الآخر"
     showRestartBtn();
     // ٢) بعد ثانية اعرض قسم التصويت الخاص بالحلقة دي
