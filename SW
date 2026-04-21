@@ -1,0 +1,249 @@
+/* ══════════════════════════════════════════════════════════
+   علم ولا فنكوش؟ — sw.js
+   Service Worker: Offline Video Cache + Push Notifications
+   ══════════════════════════════════════════════════════════ */
+
+const CACHE_NAME   = 'ewf-cache-v3';
+const VIDEO_CACHE  = 'ewf-videos-v3';
+
+/* ── ملفات الموقع الثابتة — بتتكاش عند أول تحميل ── */
+const STATIC_ASSETS = [
+  './',
+  './index.html',
+  './style.css',
+  './script.js',
+  './share.js',
+  './og-cover.jpg',
+];
+
+/* ══ الحلقات المتاحة + أسماء الفيديوهات ══
+   عدّل VIDEO_SUFFIXES لما تفتح حلقة جديدة
+   مثلاً لو فتحت الحلقة 3: ['', '2', '3']
+   ══════════════════════════════════════════ */
+const VIDEO_SUFFIXES = ['', '2', '3'];
+const VIDEO_SEGMENTS = ['intro','elm_1','elm_2','elm_3','fan_1','fan_2','fan_3','ending'];
+
+function buildVideoUrls() {
+  const urls = [];
+  VIDEO_SUFFIXES.forEach(s => {
+    VIDEO_SEGMENTS.forEach(seg => urls.push(`./${seg}${s}.mp4`));
+  });
+  return urls;
+}
+
+/* ══════════════════════════════════════════
+   INSTALL — كاش الملفات الثابتة
+   ══════════════════════════════════════════ */
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(STATIC_ASSETS))
+      .then(() => self.skipWaiting())
+  );
+});
+
+/* ══════════════════════════════════════════
+   ACTIVATE — امسح الكاش القديم
+   ══════════════════════════════════════════ */
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(
+        keys
+          .filter(k => k !== CACHE_NAME && k !== VIDEO_CACHE)
+          .map(k => caches.delete(k))
+      )
+    ).then(() => self.clients.claim())
+  );
+});
+
+/* ══════════════════════════════════════════
+   FETCH — تقديم الملفات من الكاش أو النت
+   ══════════════════════════════════════════ */
+self.addEventListener('fetch', event => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  /* ── فيديوهات .mp4 ── */
+  if (url.pathname.endsWith('.mp4')) {
+    event.respondWith(handleVideoFetch(request));
+    return;
+  }
+
+  /* ── باقي الملفات (HTML / CSS / JS / صور) ── */
+  event.respondWith(
+    caches.match(request).then(cached => {
+      if (cached) return cached;
+      return fetch(request).then(response => {
+        if (response && response.status === 200) {
+          caches.open(CACHE_NAME)
+            .then(c => c.put(request, response.clone()));
+        }
+        return response;
+      }).catch(() => caches.match('./index.html'));
+    })
+  );
+});
+
+/* ══════════════════════════════════════════
+   handleVideoFetch
+   يتعامل مع range requests للـ seeking
+   ══════════════════════════════════════════ */
+async function handleVideoFetch(request) {
+  const videoCache = await caches.open(VIDEO_CACHE);
+  const rangeHeader = request.headers.get('range');
+
+  /* لو مفيش range header — طبيعي */
+  if (!rangeHeader) {
+    const cached = await videoCache.match(request);
+    if (cached) return cached;
+    try {
+      const response = await fetch(request);
+      if (response.ok) videoCache.put(request, response.clone());
+      return response;
+    } catch {
+      return new Response('فيديو مش متاح أوفلاين', { status: 503 });
+    }
+  }
+
+  /* لو فيه range header (seeking) — محتاجين نبني الـ 206 بإيدنا من الكاش */
+  /* أول حاجة نشوف لو الفيديو كامل موجود في الكاش */
+  const fullRequest = new Request(request.url);         /* نسخة بدون range */
+  const cachedFull  = await videoCache.match(fullRequest);
+
+  if (cachedFull) {
+    return buildRangeResponse(cachedFull, rangeHeader);
+  }
+
+  /* لو مش في الكاش — اجيبه من النت وكاشه كامل */
+  try {
+    const fullResponse = await fetch(fullRequest);
+    if (fullResponse.ok) {
+      videoCache.put(fullRequest, fullResponse.clone());
+      return buildRangeResponse(fullResponse.clone(), rangeHeader);
+    }
+    return fullResponse;
+  } catch {
+    /* مفيش نت — جرّب الـ range مباشرة من الكاش (لو موجود جزئياً) */
+    const partialCached = await videoCache.match(request);
+    if (partialCached) return partialCached;
+    return new Response('فيديو مش متاح أوفلاين', { status: 503 });
+  }
+}
+
+/* بيبني response بـ 206 Partial Content من fullResponse + range string */
+async function buildRangeResponse(response, rangeHeader) {
+  const buffer = await response.arrayBuffer();
+  const total  = buffer.byteLength;
+  const match  = rangeHeader.match(/bytes=(\d+)-(\d*)/);
+  if (!match) {
+    return new Response(buffer, {
+      status: 200,
+      headers: { 'Content-Type': 'video/mp4', 'Content-Length': total }
+    });
+  }
+  const start = parseInt(match[1], 10);
+  const end   = match[2] !== '' ? parseInt(match[2], 10) : total - 1;
+  const slice = buffer.slice(start, end + 1);
+  return new Response(slice, {
+    status: 206,
+    statusText: 'Partial Content',
+    headers: {
+      'Content-Type'  : 'video/mp4',
+      'Content-Length': String(slice.byteLength),
+      'Content-Range' : `bytes ${start}-${end}/${total}`,
+      'Accept-Ranges' : 'bytes',
+    }
+  });
+}
+
+/* ══════════════════════════════════════════
+   MESSAGE — تحميل الفيديوهات في الخلفية
+   بيتبعت من الصفحة لما يضغط "تحميل أوفلاين"
+   ══════════════════════════════════════════ */
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'CACHE_VIDEOS') {
+    const urls   = event.data.urls || buildVideoUrls();
+    const source = event.source;
+    cacheVideosInBackground(urls, source);
+  }
+});
+
+async function cacheVideosInBackground(urls, client) {
+  const cache    = await caches.open(VIDEO_CACHE);
+  const total    = urls.length;
+  let   done     = 0;
+  let   failed   = 0;
+
+  for (const url of urls) {
+    /* لو موجود بالفعل — تخطّي */
+    const existing = await cache.match(new Request(url));
+    if (existing) {
+      done++;
+      notify(client, { type:'CACHE_PROGRESS', done, total, url, skipped:true });
+      continue;
+    }
+    try {
+      const response = await fetch(url);
+      if (response.ok) {
+        await cache.put(new Request(url), response);
+        done++;
+        notify(client, { type:'CACHE_PROGRESS', done, total, url });
+      } else {
+        failed++;
+        notify(client, { type:'CACHE_ERROR', url });
+      }
+    } catch {
+      failed++;
+      notify(client, { type:'CACHE_ERROR', url });
+    }
+  }
+  notify(client, { type:'CACHE_COMPLETE', done, total, failed });
+}
+
+function notify(client, data) {
+  if (client && client.postMessage) client.postMessage(data);
+  /* برضو ابعت لكل النوافذ المفتوحة */
+  self.clients.matchAll().then(clients =>
+    clients.forEach(c => c.postMessage(data))
+  );
+}
+
+/* ══════════════════════════════════════════
+   PUSH NOTIFICATIONS (موجودة قبل كده)
+   ══════════════════════════════════════════ */
+self.addEventListener('push', event => {
+  let data = {};
+  try { data = event.data.json(); } catch { data = { title:'علم ولا فنكوش؟', body: event.data ? event.data.text() : '' }; }
+
+  const options = {
+    body       : data.body  || '',
+    icon       : data.icon  || './og-cover.jpg',
+    badge      : data.badge || './og-cover.jpg',
+    data       : data.data  || {},
+    dir        : 'rtl',
+    lang       : 'ar',
+    requireInteraction: false,
+    actions    : [
+      { action:'open',  title:'شوف دلوقتي 🔥' },
+      { action:'close', title:'بعدين'          }
+    ]
+  };
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'علم ولا فنكوش؟', options)
+  );
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  if (event.action === 'close') return;
+  const url = (event.notification.data && event.notification.data.url)
+    || 'https://elmfankoush.github.io/elm-fankoush/';
+  event.waitUntil(
+    self.clients.matchAll({ type:'window' }).then(clients => {
+      const existing = clients.find(c => c.url === url);
+      if (existing) return existing.focus();
+      return self.clients.openWindow(url);
+    })
+  );
+});
