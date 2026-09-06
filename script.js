@@ -86,7 +86,7 @@ const EP_NAMES = {
 /* ── الحلقات المتاحة بالترتيب — عدّل هنا لما تفتح حلقة جديدة
    مثال: لما تنزل الحلقة 3 → غيّر السطر لـ [1, 2, 3]
    ── */
-const UNLOCKED_EPS = [1, 2, 3, 4, 5, 6];
+const UNLOCKED_EPS = [1, 2, 3, 4, 5];
 
 let currentEp = 1;
 window._currentEpNum = 1;
