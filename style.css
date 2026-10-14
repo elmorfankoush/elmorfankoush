@@ -742,3 +742,14 @@ nav::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1px;b
   .partners-section{padding:80px 0 50px;}
   .partners-gold-line{margin-bottom:36px;}
 }
+
+/* ══ FOOTER + SOCIAL ══ */
+.site-footer{position:relative;display:flex;align-items:center;justify-content:center;padding:18px 24px;margin-top:40px;}
+.footer-note{font-size:11px;color:rgba(255,255,255,0.2);font-family:Cairo,sans-serif;letter-spacing:.04em;text-align:center;}
+.footer-social{position:absolute;left:32px;top:50%;transform:translateY(-50%);display:flex;gap:10px;direction:ltr;}
+.social-link{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;color:rgba(255,255,255,.35);border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);text-decoration:none;transition:color .3s,border-color .3s,transform .3s,box-shadow .3s;-webkit-tap-highlight-color:transparent;}
+.social-link:hover,.social-link:focus-visible{color:#d4a94c;border-color:rgba(212,169,76,.5);transform:translateY(-2px);box-shadow:0 6px 18px rgba(212,169,76,.18);outline:none;}
+@media(max-width:640px){
+  .site-footer{flex-direction:column;gap:12px;padding:18px 16px 28px;}
+  .footer-social{position:static;transform:none;}
+}
