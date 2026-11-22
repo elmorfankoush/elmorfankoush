@@ -242,10 +242,31 @@ if (location.pathname.endsWith("index.html")) {
 }
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <!-- preload الفيديو الأول فوراً مع تحميل الصفحة -->
 <link rel="preload" href="intro.mp4" as="video" type="video/mp4">
 
+<style id="achievementsCSS">
+/* ══ ACHIEVEMENTS (قبل الرعاة) — مصغّر، بدون كارت، بنفس هوية الرعاة ══ */
+.ach-section{--ruq:'Aref Ruqaa','Amiri','Tajawal',serif;display:flex;flex-direction:column;align-items:center;text-align:center;padding:70px 0 0;}
+.ach-title{font-family:var(--ruq);font-size:clamp(1.4rem,4vw,1.8rem);font-weight:700;color:#d4a94c;line-height:1.6;text-shadow:0 0 24px rgba(212,169,76,.25);}
+.ach-gold-line{width:56px;height:2px;margin:10px auto 22px;border-radius:2px;background:linear-gradient(90deg,transparent,#d4a94c,transparent);}
+.ach-card{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.ach-trophy{width:34px;height:34px;margin-bottom:4px;filter:drop-shadow(0 0 10px rgba(212,169,76,.5));}
+.ach-main{font-family:var(--ruq);font-weight:700;font-size:clamp(1.05rem,3vw,1.25rem);line-height:1.8;color:rgba(232,240,254,.9);margin:0;}
+.ach-event{position:relative;overflow:hidden;direction:ltr;margin:4px 0 6px;padding:5px 30px;font-family:'Cairo',sans-serif;font-weight:900;
+  font-size:clamp(.95rem,3.2vw,1.15rem);letter-spacing:.4px;color:#1b1406;
+  background:linear-gradient(100deg,#b88a2e 0%,#f4dc9c 28%,#d4a94c 52%,#f9e6ad 74%,#b88a2e 100%);
+  clip-path:polygon(0 0,100% 0,calc(100% - 10px) 50%,100% 100%,0 100%,10px 50%);
+  filter:drop-shadow(0 4px 12px rgba(212,169,76,.3));}
+.ach-event::after{content:"";position:absolute;top:0;left:-50%;width:35%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-20deg);animation:achShine 5s ease-in-out infinite;}
+@keyframes achShine{0%,55%{left:-50%;}100%{left:140%;}}
+.ach-sub{font-family:var(--ruq);font-weight:700;font-size:clamp(1rem,2.9vw,1.15rem);line-height:1.9;color:rgba(232,240,254,.85);margin:0;}
+.ach-hl{background:linear-gradient(90deg,#b88a2e,#f4dc9c 40%,#d4a94c 70%,#f4dc9c);-webkit-background-clip:text;background-clip:text;color:transparent;}
+@media (max-width:640px){.ach-section{padding-top:52px;}}
+@media (prefers-reduced-motion:reduce){.ach-event::after{animation:none;}}
+</style>
 </head>
 <body>
 
@@ -528,8 +549,15 @@ if (location.pathname.endsWith("index.html")) {
       <h2 class="ach-title" id="achTitle" data-reveal>الإنجازات</h2>
       <div class="ach-gold-line" data-reveal></div>
       <div class="ach-card" data-reveal="scale">
-        <div class="ach-medal" aria-hidden="true">🏆</div>
-        <span class="ach-tag">✦ إنجاز جديد ✦</span>
+        <svg class="ach-trophy" viewBox="0 0 64 64" aria-hidden="true">
+          <defs><linearGradient id="achG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f9e6ad"/><stop offset=".5" stop-color="#d4a94c"/><stop offset="1" stop-color="#9c7424"/></linearGradient></defs>
+          <path d="M20 8h24v14c0 9-5 15-12 15S20 31 20 22V8z" fill="url(#achG)"/>
+          <path d="M20 12H11c0 9 4 14 11 15M44 12h9c0 9-4 14-11 15" fill="none" stroke="url(#achG)" stroke-width="3.2" stroke-linecap="round"/>
+          <rect x="29" y="37" width="6" height="9" fill="url(#achG)"/>
+          <path d="M23 46h18l2 6H21z" fill="url(#achG)"/>
+          <rect x="19" y="52" width="26" height="5" rx="1.5" fill="url(#achG)"/>
+          <path d="M26 12v10c0 4 2 7 4 8" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="2" stroke-linecap="round"/>
+        </svg>
         <p class="ach-main">متأهلون لنهائيات</p>
         <div class="ach-event">CU-AI Nexus 2026</div>
         <p class="ach-sub">ضمن <span class="ach-hl">أفضل مشروعات الذكاء الاصطناعي</span><br>على مستوى جامعات مصر</p>
