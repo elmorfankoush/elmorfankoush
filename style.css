@@ -753,3 +753,36 @@ nav::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1px;b
   .site-footer{flex-direction:column;gap:12px;padding:18px 16px 28px;}
   .footer-social{position:static;transform:none;}
 }
+
+/* ══ ACHIEVEMENTS — قبل الرعاة ══ */
+.ach-section{display:flex;flex-direction:column;align-items:center;text-align:center;padding:90px 0 0;}
+.ach-title{font-family:'Tajawal',sans-serif;font-size:clamp(1.5rem,4.5vw,2.2rem);font-weight:900;color:#d4a94c;letter-spacing:.3px;line-height:1.5;text-shadow:0 0 28px rgba(212,169,76,.25);}
+.ach-gold-line{width:72px;height:2px;margin:18px auto 44px;border-radius:2px;background:linear-gradient(90deg,transparent,#d4a94c,transparent);}
+.ach-card{position:relative;isolation:isolate;width:100%;max-width:760px;padding:44px 28px 36px;border-radius:26px;overflow:hidden;
+  background:radial-gradient(120% 110% at 50% 0%,rgba(212,169,76,.16),transparent 62%),var(--s1);
+  box-shadow:0 22px 60px rgba(0,0,0,.5),0 0 44px rgba(212,169,76,.1);}
+.ach-card::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;z-index:-1;
+  background:linear-gradient(135deg,#d4a94c,var(--elm),var(--fan),#d4a94c);background-size:300% 300%;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;
+  animation:achFlow 7s linear infinite;}
+.ach-card::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;z-index:-1;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.08),transparent);transform:skewX(-20deg);animation:achShine 5.5s ease-in-out infinite;}
+@keyframes achFlow{to{background-position:300% 50%;}}
+@keyframes achShine{0%,55%{left:-60%;}100%{left:130%;}}
+@keyframes achFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+.ach-medal{width:92px;height:92px;margin:0 auto 18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.8rem;
+  background:radial-gradient(circle at 30% 25%,#f4dc9c,#d4a94c 55%,#9c7424);
+  box-shadow:0 0 0 6px rgba(212,169,76,.16),0 0 36px rgba(212,169,76,.5);animation:achFloat 3.4s ease-in-out infinite;}
+.ach-tag{display:inline-block;font-weight:800;font-size:.78rem;letter-spacing:.5px;color:#d4a94c;padding:4px 14px;margin-bottom:14px;border-radius:999px;
+  border:1px solid rgba(212,169,76,.4);background:rgba(212,169,76,.08);}
+.ach-main{font-family:'Tajawal',sans-serif;font-weight:900;font-size:clamp(1.2rem,3.6vw,1.75rem);line-height:1.8;margin:0;color:var(--text);}
+.ach-hl{background:linear-gradient(90deg,#f4dc9c,#d4a94c,var(--fan));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.ach-event{display:inline-block;direction:ltr;margin:12px 0 8px;padding:6px 24px;border-radius:14px;font-family:'Cairo',sans-serif;font-weight:900;
+  font-size:clamp(1.3rem,4.4vw,2rem);color:#1a1405;background:linear-gradient(90deg,#d4a94c,#f4dc9c);box-shadow:0 6px 24px rgba(212,169,76,.32);}
+.ach-sub{font-family:'Tajawal',sans-serif;color:var(--text);font-weight:800;font-size:clamp(1.05rem,3vw,1.4rem);line-height:1.9;margin:14px 0 0;}
+@media (max-width:640px){
+  .ach-section{padding-top:64px;}
+  .ach-card{padding:34px 18px 28px;}
+  .ach-medal{width:78px;height:78px;font-size:2.3rem;}
+}
+@media (prefers-reduced-motion:reduce){.ach-card::before,.ach-card::after,.ach-medal{animation:none;}}
