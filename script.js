@@ -115,7 +115,7 @@ const FLOW = {
   ending : { type:'end'                                          }
 };
 
-const vid         = document.getElementById('mainVideo');
+let   vid         = document.getElementById('mainVideo');   /* بقى let — بيتبدل بين عناصر الـ pool */
 const olay        = document.getElementById('choiceOverlay');
 const overlayQ    = document.getElementById('overlayQ');
 const overlayBtns = document.getElementById('overlayBtns');
@@ -132,34 +132,109 @@ const ctrl        = document.querySelector('.player-controls');
 let curSeg    = '';
 let ctrlTimer = null;
 
-// ══ preloadNext — يحمّل الفيديو الجاي في hidden video elements ══
-const _preloadCache = {};
-const _preloadEls   = {};
+// ══════════════════════════════════════════════════════════
+//  VIDEO POOL — كذا <video> حقيقي. اللي بيتحمّل في الخلفية هو نفسه
+//  اللي بيتعرض → مفيش إعادة تحميل ومفيش شاشة سودة.
+// ══════════════════════════════════════════════════════════
+const POOL_SIZE = 6;
+const _pool = [vid];
+vid.classList.add('vid-active');
+vid._t = 0;
+for (let i = 1; i < POOL_SIZE; i++) {
+  const v = document.createElement('video');
+  v.setAttribute('playsinline', '');
+  v.setAttribute('webkit-playsinline', '');
+  v.preload = 'none';
+  v._t = 0;
+  vid.parentNode.insertBefore(v, vid.nextSibling);
+  _pool.push(v);
+}
 
+const _conn   = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+const _slowNet = () => !!(_conn && (_conn.saveData || ['slow-2g','2g'].includes(_conn.effectiveType)));
+
+/* spinner بدل الشاشة السودة */
+const _spin = document.createElement('div');
+_spin.className = 'vid-spinner';
+wrap.appendChild(_spin);
+function _busy(on){ _spin.classList.toggle('on', !!on); }
+
+/* حضّر فيديو في عنصر (أو رجّع العنصر لو متحمّل بالفعل) */
+function _prep(url, eager){
+  let el = _pool.find(e => e._url === url);
+  if (!el) {
+    el = _pool.filter(e => e !== vid).sort((a, b) => a._t - b._t)[0];
+    if (!el) return null;
+    el.pause();
+    el._url   = url;
+    el.muted  = true;
+    el.preload = eager ? 'auto' : 'metadata';
+    el.src    = url;
+    el.load();
+  } else if (eager && el.preload !== 'auto') {
+    el.preload = 'auto';
+  }
+  if (el !== vid) el._t = Date.now();
+  return el;
+}
+
+function _reveal(el){
+  _pool.forEach(e => e.classList.toggle('vid-active', e === el));
+  if (el.readyState >= 3) _busy(false);
+}
+
+/* بدّل للفيديو ده فورًا (من الـ pool لو جاهز) */
+function _switchTo(url, play){
+  const old = vid;
+  const el  = _prep(url, true);
+  if (el !== old) {
+    old.pause();
+    el.muted  = old.muted;
+    el.volume = old.volume;
+    vid = el;
+    pFill.style.width = '0%';
+  }
+  if (el.currentTime > 0.05 || el.ended) { try { el.currentTime = 0; } catch (_) {} }
+
+  if (el.readyState >= 2) {
+    _reveal(el);                       /* فيه فريم جاهز → اعرض فورًا */
+  } else {
+    _busy(true);                       /* لسه → سيب الفريم القديم + spinner لحد أول فريم */
+    const f = () => { el.removeEventListener('loadeddata', f); if (vid === el) _reveal(el); };
+    el.addEventListener('loadeddata', f);
+  }
+  if (play) { const p = el.play(); if (p && p.catch) p.catch(() => {}); }
+}
+
+/* نفّذ حاجة بعد ما الفيديو الحالي يبقى جاهز (عشان الـ preload ميزاحمش) */
+function _afterCurrentReady(fn){
+  if (vid.readyState >= 3) { fn(); return; }
+  const cur = vid;
+  let done = false;
+  const go = () => { if (done) return; done = true; cur.removeEventListener('canplay', go); fn(); };
+  cur.addEventListener('canplay', go);
+  setTimeout(go, 3000);
+}
+
+// ══ preloadNext ══
 function preloadNext(seg) {
   const f = FLOW[seg];
   if (!f) return;
-  const candidates = [];
-  if (f.type === 'choice')        { candidates.push('elm_1', 'fan_1'); }
-  else if (f.type === 'continue') { candidates.push(f.next, 'ending'); }
+  const c = [];
+  if (f.type === 'choice')        { c.push('elm_1', 'fan_1'); }
+  else if (f.type === 'continue') { c.push(f.next, 'ending'); }
+  if (!c.length) return;
+  _afterCurrentReady(() => c.forEach(n => { if (VIDEOS[n]) _prep(VIDEOS[n], !_slowNet()); }));
+}
 
-  candidates.forEach(next => {
-    const url = VIDEOS[next];
-    if (!url || _preloadCache[url]) return;
-    _preloadCache[url] = true;
-
-    // إنشاء video element مخفي يبدأ التحميل فوراً
-    const v = document.createElement('video');
-    v.src      = url;
-    /* على النت البطيء نحمّل الـ metadata بس — على الفاست نحمّل كامل */
-    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    const slow  = conn && (conn.saveData || ['slow-2g','2g','3g'].includes(conn.effectiveType));
-    v.preload  = slow ? 'metadata' : 'auto';
-    v.muted    = true;
-    v.style.cssText = 'position:absolute;width:0;height:0;opacity:0;pointer-events:none;';
-    document.body.appendChild(v);
-    v.load();
-    _preloadEls[url] = v;
+// ══ preload الحلقة السابقة والتالية (عشان زراير التنقل تبقى فورية) ══
+function preloadNeighbours(ep){
+  const idx = UNLOCKED_EPS.indexOf(ep);
+  if (idx === -1) return;
+  _afterCurrentReady(() => {
+    [UNLOCKED_EPS[idx + 1], UNLOCKED_EPS[idx - 1]].forEach(e => {
+      if (e) _prep(getVideos(e).intro, !_slowNet());
+    });
   });
 }
 
@@ -167,41 +242,11 @@ function preloadNext(seg) {
 function loadSeg(seg, play=false){
   curSeg = seg;
   _endingDone = false;
-  const url = VIDEOS[seg];
-
-  // لو الفيديو ده اتحمل مسبقاً — استخدم الـ buffered data
-  if (_preloadEls[url]) {
-    const cached = _preloadEls[url];
-    /* لو الـ cached حمّل بيانات كافية، انسخه للـ main video */
-    if (cached.readyState >= 2) {
-      document.body.removeChild(cached);
-    }
-    delete _preloadEls[url];
-    vid.src = url;
-    /* مش بنعمل load() لو الـ src مش اتغير — المتصفح بيحتفظ بالـ cache */
-    if (vid.src !== url) vid.load();
-  } else {
-    vid.src = url;
-    vid.load();
-  }
+  _switchTo(VIDEOS[seg], play);
 
   updateProgressUI(seg);
   updateMeta(seg);
   if(seg !== 'ending' && window.hideVoteSection) window.hideVoteSection();
-
-  if(play){
-    // استنى canplay الأول عشان يبدأ فوراً بدون تقطيع
-    const onReady = () => {
-      vid.removeEventListener('canplay', onReady);
-      vid.play().catch(() => {});
-    };
-    // لو الفيديو جاهز بالفعل — اشتغل فوراً
-    if (vid.readyState >= 3) {
-      vid.play().catch(() => {});
-    } else {
-      vid.addEventListener('canplay', onReady, { once: true });
-    }
-  }
 
   // حمّل الفيديو الجاي في الخلفية
   preloadNext(seg);
@@ -255,27 +300,16 @@ function loadEpisode(ep) {
   if(window.hideVoteSection) window.hideVoteSection();
   curSeg = '';
 
-  // ابدأ تحميل الـ intro فوراً قبل الانتظار
-  vid.src = VIDEOS['intro'];
-  vid.load();
-
+  // شغّل الـ intro فورًا (من الـ pool لو متحمّل) — من غير ما نستنى أي timeout
+  curSeg = 'intro';
+  _endingDone = false;
+  _switchTo(VIDEOS['intro'], true);
+  updateProgressUI('intro');
+  updateMeta('intro');
   goPage('home', document.querySelector('.nav-links a'));
-  setTimeout(() => {
-    scrollToPlayer();
-    // الفيديو بيكون اتحمل شوية بالفعل — اشتغل فوراً
-    curSeg = 'intro';
-    updateProgressUI('intro');
-    updateMeta('intro');
-    if (vid.readyState >= 3) {
-      vid.play().catch(() => {});
-    } else {
-      vid.addEventListener('canplay', function onReady(){
-        vid.removeEventListener('canplay', onReady);
-        vid.play().catch(() => {});
-      }, { once: true });
-    }
-    preloadNext('intro');
-  }, 400);
+  setTimeout(scrollToPlayer, 250);
+  preloadNext('intro');
+  preloadNeighbours(ep);
 
   const heroBtn = document.querySelector('.btn-p');
   if(heroBtn){
@@ -288,18 +322,8 @@ function loadEpisode(ep) {
 
 // ══ preloadEpOnHover — يحمّل intro الحلقة لما الماوس يحوم على الكارت ══
 function preloadEpOnHover(ep) {
-  const videos = getVideos(ep);
-  const url    = videos['intro'];
-  if (_preloadCache[url]) return;   // اتحمل قبل كده
-  _preloadCache[url] = true;
-  const v = document.createElement('video');
-  v.src     = url;
-  v.preload = 'auto';
-  v.muted   = true;
-  v.style.cssText = 'position:absolute;width:0;height:0;opacity:0;pointer-events:none;';
-  document.body.appendChild(v);
-  v.load();
-  _preloadEls[url] = v;
+  if (!EPISODES[ep] || _slowNet()) return;
+  _prep(getVideos(ep).intro, true);
 }
 
 function updateMeta(seg){
@@ -361,58 +385,13 @@ function hideOverlay(){ olay.classList.remove('visible'); }
 
 function choosePath(path){
   window._currentPath = path;
-  // ابدأ تحميل الفيديو فوراً قبل ما الـ overlay يتخفى
-  const seg = path + '_1';
-  const url = VIDEOS[seg];
-  vid.src = url;
-  vid.load();
-  // خفّي الـ overlay
   hideOverlay();
-  // اشتغل بعد ما يكون جاهز
-  if (vid.readyState >= 3) {
-    vid.play().catch(() => {});
-    updateProgressUI(seg);
-    updateMeta(seg);
-    if(window.hideVoteSection) window.hideVoteSection();
-    preloadNext(seg);
-    curSeg = seg;
-  } else {
-    vid.addEventListener('canplay', function onReady(){
-      vid.removeEventListener('canplay', onReady);
-      vid.play().catch(() => {});
-    }, { once: true });
-    updateProgressUI(seg);
-    updateMeta(seg);
-    if(window.hideVoteSection) window.hideVoteSection();
-    preloadNext(seg);
-    curSeg = seg;
-  }
+  loadSeg(path + '_1', true);
 }
 
 function goNext(seg){
-  const url = VIDEOS[seg];
-  // ابدأ تحميل الفيديو فوراً قبل ما الـ overlay يتخفى
-  vid.src = url;
-  vid.load();
   hideOverlay();
-  if (vid.readyState >= 3) {
-    vid.play().catch(() => {});
-    updateProgressUI(seg);
-    updateMeta(seg);
-    if(seg !== 'ending' && window.hideVoteSection) window.hideVoteSection();
-    preloadNext(seg);
-    curSeg = seg;
-  } else {
-    vid.addEventListener('canplay', function onReady(){
-      vid.removeEventListener('canplay', onReady);
-      vid.play().catch(() => {});
-    }, { once: true });
-    updateProgressUI(seg);
-    updateMeta(seg);
-    if(seg !== 'ending' && window.hideVoteSection) window.hideVoteSection();
-    preloadNext(seg);
-    curSeg = seg;
-  }
+  loadSeg(seg, true);
 }
 
 function showRestartBtn(){
@@ -449,18 +428,24 @@ wrap.addEventListener('touchstart', () => {
     : showControls();
 }, { passive:true });
 
-// ── VIDEO EVENTS ──
-vid.addEventListener('play', () => {
+// ── VIDEO EVENTS (على كل عناصر الـ pool — بس العنصر الشغال هو اللي بينفّذ) ──
+function _on(type, fn){
+  _pool.forEach(el => el.addEventListener(type, e => { if (el === vid) fn(e); }));
+}
+_on('waiting', () => _busy(true));
+_on('canplay', () => _busy(false));
+_on('playing', () => _busy(false));
+_on('play', () => {
   pBtn.textContent = '⏸';
   clearTimeout(ctrlTimer);
   ctrlTimer = setTimeout(() => ctrl.classList.remove('visible'), 2500);
 });
-vid.addEventListener('pause', () => {
+_on('pause', () => {
   pBtn.textContent = '▶';
   clearTimeout(ctrlTimer);
   ctrl.classList.add('visible');
 });
-vid.addEventListener('timeupdate', () => {
+_on('timeupdate', () => {
   if(!vid.duration) return;
   pFill.style.width = (vid.currentTime / vid.duration * 100) + '%';
   tDisp.textContent = fmt(vid.currentTime) + ' / ' + fmt(vid.duration);
@@ -474,7 +459,7 @@ vid.addEventListener('timeupdate', () => {
 });
 let _endingDone = false;
 
-vid.addEventListener('ended', () => {
+_on('ended', () => {
   pBtn.textContent = '▶';
   clearTimeout(ctrlTimer);
   ctrl.classList.add('visible');
